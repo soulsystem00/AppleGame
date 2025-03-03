@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
@@ -13,6 +14,10 @@ public class GameManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI scoreText;
     [SerializeField] TextMeshProUGUI timerText;
     [SerializeField] float maxTime;
+
+    [SerializeField] GameObject resultPanel;
+    [SerializeField] TextMeshProUGUI resultText;
+    [SerializeField] Button resultButton;
 
     int score = 0;
 
@@ -29,7 +34,14 @@ public class GameManager : MonoBehaviour
         }
 
         appleSpawner.SpawnApples();
+        resultPanel.SetActive(false);
         scoreText.text = $"Score : {score.ToString()}";
+
+        resultButton.onClick.AddListener(() =>
+        {
+            UnityEngine.SceneManagement.SceneManager.LoadScene(0);
+        });
+
         inputManager.OnAppleMouseUp += InputManager_OnAppleMouseUp;
     }
 
@@ -49,6 +61,9 @@ public class GameManager : MonoBehaviour
 
             inputManager.gameObject.SetActive(false);
             audio.Stop();
+
+            resultPanel.SetActive(true);
+            resultText.text = $"Your Score : {score.ToString()}";
         }
     }
 
