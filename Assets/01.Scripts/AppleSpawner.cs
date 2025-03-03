@@ -8,8 +8,8 @@ public class AppleSpawner : MonoBehaviour
     [SerializeField] int widthCount;
     [SerializeField] int heightCount;
 
-    public int width = 1;
-    public int height = 1;
+    public float width = 1;
+    public float height = 1;
     public float widthOffset = -8.5f;
     public float heightOffset = -4.5f;
 
