@@ -28,7 +28,7 @@ public class AppleSpawner : MonoBehaviour
             {
                 var apple = Instantiate(applePrefab, new Vector3(i * width + widthOffset, j * height + heightOffset, 0), Quaternion.identity).GetComponent<Apple>();
                 int randomNumber = Random.Range(1, 10);
-                apple.Init(randomNumber);
+                apple.Init(randomNumber, i, j);
 
                 apple.transform.SetParent(this.transform);
 
@@ -40,5 +40,15 @@ public class AppleSpawner : MonoBehaviour
     public List<Apple> GetApples()
     {
         return appleList;
+    }
+
+    public int GetWidthCount()
+    {
+        return widthCount;
+    }
+
+    public int GetHeightCount()
+    {
+        return heightCount;
     }
 }

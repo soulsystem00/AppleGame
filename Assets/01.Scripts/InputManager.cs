@@ -24,12 +24,69 @@ public class InputManager : MonoBehaviour
         remove { onAppleMouseUp -= value; }
     }
 
+    private event Action<bool> onKeyPressed;
+    public event Action<bool> OnKeyPressed
+    {
+        add
+        {
+            onKeyPressed -= value;
+            onKeyPressed += value;
+        }
+        remove { onKeyPressed -= value; }
+    }
+
     private void Awake()
     {
         mainCam = Camera.main;
     }
 
     private void Update()
+    {
+        MouseInput();
+
+        HotKeyInput();
+
+        DrawingRectangle();
+    }
+
+    private void HotKeyInput()
+    {
+        if (Input.GetKeyDown(KeyCode.F1))
+        {
+            onKeyPressed?.Invoke(true);
+        }
+        else if (Input.GetKeyUp(KeyCode.F1))
+        {
+            onKeyPressed?.Invoke(false);
+        }
+    }
+
+    private void DrawingRectangle()
+    {
+        if (isDrawing == true)
+        {
+            line.enabled = true;
+
+            line.positionCount = 4;
+
+            float minX = Mathf.Min(startMousePos.x, endMousePos.x);
+            float maxX = Mathf.Max(startMousePos.x, endMousePos.x);
+            float minY = Mathf.Min(startMousePos.y, endMousePos.y);
+            float maxY = Mathf.Max(startMousePos.y, endMousePos.y);
+
+            line.SetPosition(0, new Vector2(minX, maxY));
+            line.SetPosition(1, new Vector2(maxX, maxY));
+            line.SetPosition(2, new Vector2(maxX, minY));
+            line.SetPosition(3, new Vector2(minX, minY));
+        }
+        else
+        {
+            line.enabled = false;
+            line.positionCount = 0;
+        }
+    }
+
+    private void MouseInput()
     {
         if (Input.GetMouseButtonDown(0))
         {
@@ -57,28 +114,6 @@ public class InputManager : MonoBehaviour
             startMousePos = Vector2.zero;
             endMousePos = Vector2.zero;
             isDrawing = false;
-        }
-
-        if (isDrawing == true)
-        {
-            line.enabled = true;
-
-            line.positionCount = 4;
-
-            float minX = Mathf.Min(startMousePos.x, endMousePos.x);
-            float maxX = Mathf.Max(startMousePos.x, endMousePos.x);
-            float minY = Mathf.Min(startMousePos.y, endMousePos.y);
-            float maxY = Mathf.Max(startMousePos.y, endMousePos.y);
-
-            line.SetPosition(0, new Vector2(minX, maxY));
-            line.SetPosition(1, new Vector2(maxX, maxY));
-            line.SetPosition(2, new Vector2(maxX, minY));
-            line.SetPosition(3, new Vector2(minX, minY));
-        }
-        else
-        {
-            line.enabled = false;
-            line.positionCount = 0;
         }
     }
 }

@@ -20,6 +20,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] Button resultButton;
 
     int score = 0;
+    int widthCount;
+    int heightCount;
 
     void Start()
     {
@@ -42,7 +44,14 @@ public class GameManager : MonoBehaviour
             UnityEngine.SceneManagement.SceneManager.LoadScene(0);
         });
 
+
+        widthCount = appleSpawner.GetWidthCount();
+        heightCount = appleSpawner.GetHeightCount();
+
         inputManager.OnAppleMouseUp += InputManager_OnAppleMouseUp;
+        inputManager.OnKeyPressed += InputManager_OnKeyPressed;
+
+        IsAppleAvailable();
     }
 
     private void Update()
@@ -93,6 +102,82 @@ public class GameManager : MonoBehaviour
             apples.Remove(apple);
             Destroy(apple.gameObject);
             Debug.Log("Apple Destoryed");
+        }
+
+        if (IsAppleAvailable() == true)
+        {
+            Debug.Log("Apple Available");
+        }
+        else
+        {
+            Debug.Log("No Apple Available");
+        }
+    }
+
+    private bool IsAppleAvailable()
+    {
+        bool result = false;
+
+        var apples = appleSpawner.GetApples();
+
+        if (apples.Count <= 0)
+        {
+            return false;
+        }
+
+        foreach (Apple apple in apples)
+        {
+            apple.SetAvailable(false);
+        }
+
+        foreach (Apple apple in apples)
+        {
+            Vector2Int minPos = apple.GetPos();
+
+            for (int i = 0; i < widthCount; i++)
+            {
+                for (int j = 0; j < heightCount; j++)
+                {
+                    if (i == 0 && j == 0)
+                    {
+                        continue;
+                    }
+
+                    Vector2Int maxPos = new Vector2Int(i, j);
+                    var availableApples = apples.Where(x => x.IsInside(minPos, maxPos)).ToList();
+
+                    if (availableApples.Count > 0)
+                    {
+                        int sum = availableApples.Sum(x => x.GetNumber());
+
+                        if (sum == 10)
+                        {
+                            result = true;
+
+                            foreach (var item in availableApples)
+                            {
+                                item.SetAvailable(true);
+                            }
+                        }
+                        else if (sum > 10)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private void InputManager_OnKeyPressed(bool value)
+    {
+        var apples = appleSpawner.GetApples();
+
+        foreach (Apple apple in apples)
+        {
+            apple.SetSpriteColor(value);
         }
     }
 }
