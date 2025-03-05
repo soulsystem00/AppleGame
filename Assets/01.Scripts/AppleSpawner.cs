@@ -21,6 +21,15 @@ public class AppleSpawner : MonoBehaviour
         {
             appleList = new List<Apple>();
         }
+        else
+        {
+            for (int i = 0; i < appleList.Count; i++)
+            {
+                Destroy(appleList[i].gameObject);
+            }
+
+            appleList.Clear();
+        }
 
         for (int i = 0; i < widthCount; i++)
         {

@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
-    [SerializeField] bool checkAvailable = false;
+    [SerializeField] bool isCheatMode = false;
     [SerializeField] AppleSpawner appleSpawner;
     [SerializeField] InputManager inputManager;
     [SerializeField] AudioSource audio;
@@ -53,7 +53,10 @@ public class GameManager : MonoBehaviour
         inputManager.OnAppleMouseUp += InputManager_OnAppleMouseUp;
         inputManager.OnKeyPressed += InputManager_OnKeyPressed;
 
-        IsAppleAvailable();
+        while (IsAppleAvailable() == false)
+        {
+            appleSpawner.SpawnApples();
+        }
     }
 
     private void Update()
@@ -106,15 +109,17 @@ public class GameManager : MonoBehaviour
             Debug.Log("Apple Destoryed");
         }
 
-        if (checkAvailable == true)
+        if (IsAppleAvailable() == true)
         {
-            if (IsAppleAvailable() == true)
+            Debug.Log("Apple Available");
+        }
+        else
+        {
+            Debug.Log("No Apple Available");
+
+            while (IsAppleAvailable() == false)
             {
-                Debug.Log("Apple Available");
-            }
-            else
-            {
-                Debug.Log("No Apple Available");
+                appleSpawner.SpawnApples();
             }
         }
     }
@@ -134,10 +139,15 @@ public class GameManager : MonoBehaviour
 
         foreach (Apple apple in apples)
         {
+            apple.SetAvailable(false);
+
+            if (isCheatMode == true)
+            {
+                apple.SetSpriteColor(false);
+            }
+
             Vector2Int pos = apple.GetPos();
             appleDict[pos] = apple;
-
-            apple.SetAvailable(false);
         }
 
         foreach (Apple apple in apples)
@@ -204,6 +214,11 @@ public class GameManager : MonoBehaviour
                 if (grids.ContainsKey(curPos))
                 {
                     grids[curPos].SetAvailable(true);
+
+                    if (isCheatMode == true)
+                    {
+                        grids[curPos].SetSpriteColor(true);
+                    }
                 }
             }
         }
