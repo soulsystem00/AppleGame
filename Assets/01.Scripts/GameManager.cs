@@ -319,11 +319,16 @@ public class GameManager : MonoBehaviour
 
     private void InputManager_OnKeyPressed(bool value)
     {
-        var apples = appleSpawner.GetApples();
-
-        foreach (Apple apple in apples)
+        if (value == true)
         {
-            apple.SetSpriteColor(value);
+            isCheatMode = !isCheatMode;
+
+            var apples = appleSpawner.GetApples();
+
+            foreach (Apple apple in apples)
+            {
+                apple.SetSpriteColor(isCheatMode);
+            }
         }
     }
 }
