@@ -109,7 +109,13 @@ public class InputManager : MonoBehaviour
 
             Vector2 minPos = new Vector2(minX, minY);
             Vector2 maxPos = new Vector2(maxX, maxY);
+
+            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+            sw.Start();
             onAppleMouseUp?.Invoke(minPos, maxPos);
+            sw.Stop();
+
+            Debug.Log($"Elapsed Time : {sw.ElapsedMilliseconds} ms");
 
             startMousePos = Vector2.zero;
             endMousePos = Vector2.zero;
