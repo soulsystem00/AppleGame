@@ -619,7 +619,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea01072f97aab304bbe97df4661fd63e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isCheatMode: 0
+  isCheatMode: 1
   appleSpawner: {fileID: 1911370633}
   inputManager: {fileID: 2060045652}
   audio: {fileID: 1325785573}

@@ -109,7 +109,9 @@ public class GameManager : MonoBehaviour
             Debug.Log("Apple Destoryed");
         }
 
-        if (IsAppleAvailable() == true)
+        bool isAppleAvailable = IsAppleAvailable();
+
+        if (isAppleAvailable == true)
         {
             Debug.Log("Apple Available");
         }
@@ -127,36 +129,52 @@ public class GameManager : MonoBehaviour
     private bool IsAppleAvailable()
     {
         bool result = false;
+        int[,] arr = new int[widthCount + 1, heightCount + 1];
+        int[,] preSum = new int[widthCount + 1, heightCount + 1];
 
-        var apples = appleSpawner.GetApples();
+        var apples = appleSpawner.GetApples().ToList();
 
         if (apples.Count <= 0)
         {
-            return false;
+            result = false;
+            return result;
         }
 
         Dictionary<Vector2Int, Apple> appleDict = new Dictionary<Vector2Int, Apple>();
 
-        foreach (Apple apple in apples)
+        foreach (var apple in apples)
         {
             apple.SetAvailable(false);
 
             if (isCheatMode == true)
             {
-                apple.SetSpriteColor(false);
+                apple.SetSpriteColor(true);
             }
 
-            Vector2Int pos = apple.GetPos();
+            var pos = apple.GetPos();
             appleDict[pos] = apple;
+            arr[pos.x + 1, pos.y + 1] = apple.GetNumber();
+        }
+
+        for (int i = 1; i <= widthCount; i++)
+        {
+            for (int j = 1; j <= heightCount; j++)
+            {
+                int dx = i - 1;
+                int dy = j - 1;
+                preSum[i, j] = arr[i, j] + preSum[dx, j] + preSum[i, dy] - preSum[dx, dy];
+            }
         }
 
         foreach (Apple apple in apples)
         {
             Vector2Int minPos = apple.GetPos();
+            minPos.x++;
+            minPos.y++;
 
-            for (int i = minPos.x; i < widthCount; i++)
+            for (int i = minPos.x; i <= widthCount; i++)
             {
-                for (int j = minPos.y; j < heightCount; j++)
+                for (int j = minPos.y; j <= heightCount; j++)
                 {
                     if (i == minPos.x && j == minPos.y)
                     {
@@ -165,7 +183,10 @@ public class GameManager : MonoBehaviour
 
                     Vector2Int maxPos = new Vector2Int(i, j);
 
-                    int sum = GetRectangleSum(appleDict, minPos, maxPos);
+                    int dx = minPos.x - 1;
+                    int dy = minPos.y - 1;
+
+                    int sum = preSum[maxPos.x, maxPos.y] - preSum[maxPos.x, dy] - preSum[dx, maxPos.y] + preSum[dx, dy];
 
                     if (sum == 10)
                     {
@@ -183,41 +204,21 @@ public class GameManager : MonoBehaviour
         return result;
     }
 
-    private int GetRectangleSum(Dictionary<Vector2Int, Apple> grids, Vector2Int minPos, Vector2Int maxPos)
+    private void SetAvailable(Dictionary<Vector2Int, Apple> appleDict, Vector2Int minPos, Vector2Int maxPos)
     {
-        int sum = 0;
-
-        for (int i = minPos.x; i <= maxPos.x; i++)
+        for (int a = minPos.x; a <= maxPos.x; a++)
         {
-            for (int j = minPos.y; j <= maxPos.y; j++)
+            for (int b = minPos.y; b <= maxPos.y; b++)
             {
-                var curPos = new Vector2Int(i, j);
-                if (grids.ContainsKey(curPos))
+                var curPos = new Vector2Int(a - 1, b - 1);
+
+                if (appleDict.ContainsKey(curPos) == true)
                 {
-                    sum += grids[curPos].GetNumber();
-                }
-            }
-        }
-
-
-        return sum;
-    }
-
-    private void SetAvailable(Dictionary<Vector2Int, Apple> grids, Vector2Int minPos, Vector2Int maxPos)
-    {
-        for (int i = minPos.x; i <= maxPos.x; i++)
-        {
-            for (int j = minPos.y; j <= maxPos.y; j++)
-            {
-                var curPos = new Vector2Int(i, j);
-
-                if (grids.ContainsKey(curPos))
-                {
-                    grids[curPos].SetAvailable(true);
+                    appleDict[curPos].SetAvailable(true);
 
                     if (isCheatMode == true)
                     {
-                        grids[curPos].SetSpriteColor(true);
+                        appleDict[curPos].SetSpriteColor(true);
                     }
                 }
             }
@@ -238,4 +239,106 @@ public class GameManager : MonoBehaviour
             }
         }
     }
+
+    #region Legacy
+    //private bool IsAppleAvailable_Legacy()
+    //{
+    //    bool result = false;
+
+    //    var apples = appleSpawner.GetApples();
+
+    //    if (apples.Count <= 0)
+    //    {
+    //        return false;
+    //    }
+
+    //    Dictionary<Vector2Int, Apple> appleDict = new Dictionary<Vector2Int, Apple>();
+
+    //    foreach (Apple apple in apples)
+    //    {
+    //        apple.SetAvailable(false);
+
+    //        if (isCheatMode == true)
+    //        {
+    //            apple.SetSpriteColor(false);
+    //        }
+
+    //        Vector2Int pos = apple.GetPos();
+    //        appleDict[pos] = apple;
+    //    }
+
+    //    foreach (Apple apple in apples)
+    //    {
+    //        Vector2Int minPos = apple.GetPos();
+
+    //        for (int i = minPos.x; i < widthCount; i++)
+    //        {
+    //            for (int j = minPos.y; j < heightCount; j++)
+    //            {
+    //                if (i == minPos.x && j == minPos.y)
+    //                {
+    //                    continue;
+    //                }
+
+    //                Vector2Int maxPos = new Vector2Int(i, j);
+
+    //                int sum = GetRectangleSum_Legacy(appleDict, minPos, maxPos);
+
+    //                if (sum == 10)
+    //                {
+    //                    result = true;
+    //                    SetAvailable_Legacy(appleDict, minPos, maxPos);
+    //                }
+    //                else if (sum > 10)
+    //                {
+    //                    break;
+    //                }
+    //            }
+    //        }
+    //    }
+
+    //    return result;
+    //}
+
+    //private int GetRectangleSum_Legacy(Dictionary<Vector2Int, Apple> grids, Vector2Int minPos, Vector2Int maxPos)
+    //{
+    //    int sum = 0;
+
+    //    for (int i = minPos.x; i <= maxPos.x; i++)
+    //    {
+    //        for (int j = minPos.y; j <= maxPos.y; j++)
+    //        {
+    //            var curPos = new Vector2Int(i, j);
+    //            if (grids.ContainsKey(curPos))
+    //            {
+    //                sum += grids[curPos].GetNumber();
+    //            }
+    //        }
+    //    }
+
+
+    //    return sum;
+    //}
+
+    //private void SetAvailable_Legacy(Dictionary<Vector2Int, Apple> grids, Vector2Int minPos, Vector2Int maxPos)
+    //{
+    //    for (int i = minPos.x; i <= maxPos.x; i++)
+    //    {
+    //        for (int j = minPos.y; j <= maxPos.y; j++)
+    //        {
+    //            var curPos = new Vector2Int(i, j);
+
+    //            if (grids.ContainsKey(curPos))
+    //            {
+    //                grids[curPos].SetAvailable(true);
+
+    //                if (isCheatMode == true)
+    //                {
+    //                    grids[curPos].SetSpriteColor(true);
+    //                }
+    //            }
+    //        }
+    //    }
+    //}
+    #endregion
 }
